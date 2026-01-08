@@ -1,0 +1,67 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:15
+    container_name: bot_db
+    restart: always
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  listener:
+    # שנה את USERNAME לשם המשתמש שלך
+    image: stipe69/9_bucks_bot:listener-latest
+    container_name: bot_listener
+    restart: always
+    depends_on:
+      db:
+        condition: service_healthy
+    env_file: .env
+    environment:
+      - POSTGRES_HOST=db
+      - STRATEGY_PATH=/app/strategies
+    volumes:
+      - bot_data:/app/data
+
+  dashboard:
+    image: USERNAME/9_bucks_bot:dashboard-latest
+    container_name: bot_dashboard
+    restart: always
+    depends_on:
+      db:
+        condition: service_healthy
+    env_file: .env
+    environment:
+      - POSTGRES_HOST=db
+      - STRATEGY_PATH=/app/strategies
+    volumes:
+      - bot_data:/app/data
+    ports:
+      - "8000:8000"
+
+  manager:
+    image: USERNAME/9_bucks_bot:manager-latest
+    container_name: bot_manager
+    restart: "no"
+    depends_on:
+      db:
+        condition: service_healthy
+    env_file: .env
+    environment:
+      - POSTGRES_HOST=db
+      - STRATEGY_PATH=/app/strategies
+    volumes:
+      - bot_data:/app/data
+
+volumes:
+  pg_data:
+  bot_data:
