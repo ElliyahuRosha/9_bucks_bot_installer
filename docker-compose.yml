@@ -33,7 +33,7 @@ services:
       - bot_data:/app/data
 
   dashboard:
-    image: USERNAME/9_bucks_bot:dashboard-latest
+    image: stipe69/9_bucks_bot:dashboard-latest
     container_name: bot_dashboard
     restart: always
     depends_on:
@@ -49,7 +49,7 @@ services:
       - "8000:8000"
 
   manager:
-    image: USERNAME/9_bucks_bot:manager-latest
+    image: stipe69/9_bucks_bot:manager-latest
     container_name: bot_manager
     restart: "no"
     depends_on:
